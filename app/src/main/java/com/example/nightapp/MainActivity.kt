@@ -1,20 +1,25 @@
 package com.example.nightapp
 
+import android.content.Context
 import android.os.Bundle
+import android.provider.Settings
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.Button
 import android.widget.SeekBar
-import android.widget.Toast
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.nightapp.TestTileService.GlobalVariable
-import java.io.File
+
+//./gradlew assembleRelease
 
 
 class MainActivity : AppCompatActivity() {
 
+    //初始化
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -24,10 +29,26 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        val htmlText = "<a href=\"https://github.com/wuxingwushu/NightCat\">NightCat</a>"
+        val TextH: TextView = findViewById(R.id.html)
+        TextH.text = Html.fromHtml(htmlText, Html.FROM_HTML_MODE_COMPACT)
+        // 设置LinkMovementMethod使得链接可点击
+        TextH.movementMethod = LinkMovementMethod.getInstance()
+
+        val TextV: TextView = findViewById(R.id.text)
+        if(getBrightnessMode() == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC){
+            TextV.text = "自动亮度模式"
+        }
+        if(getBrightnessMode() == Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL){
+            TextV.text = "手动亮度模式"
+        }
+
 
         val seekBar: SeekBar = findViewById(R.id.seekBar)
         // 设置SeekBar的最大值
         seekBar.max = 255
+
+        seekBar.progress = getSystemBrightness()
 
         // 设置进度改变监听器
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -50,7 +71,9 @@ class MainActivity : AppCompatActivity() {
 
 
         val seekBar_2: SeekBar = findViewById(R.id.seekBar_2)
-        seekBar_2.max = 100
+        seekBar_2.max = 90
+        val readContent = readFromFile().toString()
+        seekBar_2.progress = (90 * readContent.toFloat()).toInt()
         // 设置进度改变监听器
         seekBar_2.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar_2: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -64,6 +87,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 // 当用户停止触摸SeekBar时调用
+                writeToFile(TestTileService.GlobalVariable.PMf.toString())
             }
         })
 
@@ -82,12 +106,24 @@ class MainActivity : AppCompatActivity() {
                 myButton.text = "关闭"
             } else{
                 TestTileService.GlobalVariable.TileService?.remove()
-                myButton.text = "开启"
+                myButton.text = "开始"
             }
 
             //弹出文字提醒
             //Toast.makeText(this, "开启悬浮窗", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    fun writeToFile(content: String) {
+        val fileName = "data.txt"
+        this.openFileOutput(fileName, Context.MODE_PRIVATE).use { out ->
+            out.write(content.toByteArray())
+        }
+    }
+
+    fun readFromFile(): String? {
+        val fileName = "data.txt"
+        return this.openFileInput(fileName).bufferedReader().use { it.readText() }
     }
 
     private fun setBrightness(level: Float) {
@@ -96,8 +132,16 @@ class MainActivity : AppCompatActivity() {
         window.attributes = layoutParams
     }
 
-    private fun getBrightness(): Float {
-        return window.attributes.screenBrightness
+    //获取手机屏幕亮度
+    private fun getSystemBrightness(): Int {
+        val contentResolver = this.contentResolver
+        return Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, -1)
+    }
+
+    //获取手机屏幕亮度是自动还是手动
+    private fun getBrightnessMode(): Int {
+        val contentResolver = this.contentResolver
+        return Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE, -1)
     }
 
     /*

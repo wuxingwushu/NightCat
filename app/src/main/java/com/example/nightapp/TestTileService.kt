@@ -22,11 +22,12 @@ class TestTileService : TileService() {
         var TileService: TestTileService? = null
     }
 
+    //初始化
     override fun onCreate() {
         super.onCreate()
 
         GlobalVariable.TileService = this
-
+        GlobalVariable.PMf = (this.openFileInput("data.txt").bufferedReader().use { it.readText() }).toString().toFloat()
     }
 
     override fun onClick() {
@@ -82,6 +83,7 @@ class TestTileService : TileService() {
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or //可以超出屏幕边界
                     WindowManager.LayoutParams.FLAG_SECURE, // 截图录屏不会被遮挡
             PixelFormat.TRANSLUCENT
+
         )
 
         //设置透明度
