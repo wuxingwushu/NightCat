@@ -81,7 +81,7 @@ class TestTileService : TileService() {
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,// 设置宽度为设备屏幕宽度
             WindowManager.LayoutParams.MATCH_PARENT,// 设置高度为设备屏幕高度
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or //可以超出屏幕边界
