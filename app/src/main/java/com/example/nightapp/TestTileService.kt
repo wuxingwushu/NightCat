@@ -27,7 +27,11 @@ class TestTileService : TileService() {
         super.onCreate()
 
         GlobalVariable.TileService = this
-        GlobalVariable.PMf = (this.openFileInput("data.txt").bufferedReader().use { it.readText() }).toString().toFloat()
+        try {
+            GlobalVariable.PMf = (this.openFileInput("data.txt").bufferedReader().use { it.readText() }).toString().toFloat()
+        } catch (e: Exception) {
+            GlobalVariable.PMf = 0.5f
+        }
     }
 
     override fun onClick() {
@@ -47,7 +51,7 @@ class TestTileService : TileService() {
     //创建悬浮窗口
     fun create(){
         // 创建悬浮窗
-        if (Settings.canDrawOverlays(this) or (GlobalVariable.floatingView == null)) {
+        if (Settings.canDrawOverlays(this) && (GlobalVariable.floatingView == null)) {
             // 已经有权限，可以创建悬浮窗
             createFloatingView()
         }
@@ -76,7 +80,7 @@ class TestTileService : TileService() {
         // 设置悬浮窗参数
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,// 设置宽度为设备屏幕宽度
-            WindowManager.LayoutParams.MATCH_PARENT,// 设置宽度为设备屏幕高度
+            WindowManager.LayoutParams.MATCH_PARENT,// 设置高度为设备屏幕高度
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
